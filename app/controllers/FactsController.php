@@ -2,6 +2,10 @@
 
 class FactsController extends BaseController{
 
+    public function __construct(){
+        $this->beforeFilter('auth', array('except' => array('gFacts', 'pFacts')));
+    }
+
     // private function to create an array to be transferred to the page
     private function results($id, $numberOfItems = 10){
         $category = Category::find($id);
@@ -25,8 +29,8 @@ class FactsController extends BaseController{
     }
 
     // Show all facts
-    public function getFacts($id){ 
-        return View::make('facts', array('results'=>$this->results($id, 3)));
+    public function gFacts($id){ 
+        return View::make('facts', array('results'=>$this->results($id, 1)));
     }
 
     // Handle the GET requests
@@ -57,14 +61,14 @@ class FactsController extends BaseController{
         }
 
         // Approve the fact
-        elseif($submitValue == "Approve"){
+        elseif($submitValue == "Show"){
             $fact = Fact::find(Input::get('frmID'));
             $fact->approved = true; 
             $fact->save();
         }
 
         // Disapprove the fact
-        elseif($submitValue == "Disapprove"){
+        elseif($submitValue == "Hide"){
             $fact = Fact::find(Input::get('frmID'));
             $fact->approved = false; 
             $fact->save();
@@ -79,12 +83,13 @@ class FactsController extends BaseController{
             return 'what?';
         }
 
-        return Redirect::to(Input::get('frmCatID').'/create-facts');
+        return Redirect::to(Request::fullUrl());
     }
 
-    public function postFacts($id){
+    // Handles ratings
+    public function pFacts($id){
         // Ratings 
-        $userID = $_REQUEST['X-Mxit-USERID-R']; ;
+        $userID = Request::server('HTTP_X_MXIT_USERID_R');
 
         if(Input::get('submit') == "Rate" && $userID != ""){
             $rating = Input::get('frmRating') == "-1" ? -1 : (Input::get('frmRating') == "1" ? 1 : -2);
@@ -105,7 +110,7 @@ class FactsController extends BaseController{
             }
         }
 
-        return Redirect::to($id.'/facts?page='.Input::get('page'));
+        return Redirect::to(Request::fullUrl());
     }
 }
 

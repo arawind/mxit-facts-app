@@ -2,13 +2,31 @@
 
 class CategoriesController extends BaseController{
 
-    // Handle the GET requests
+    public function __construct(){
+        $this->beforeFilter('auth', array('except' => array('gCategories')));
+    }
+
     public function getIndex(){
-        return View::make('create-categories')->with('categories', Category::all());
+        $this->getAdmin();
+    }
+
+    // Handle the GET requests
+    public function getAdmin(){
+        if(Input::get('edit') == ''){
+            $limitItems = Input::get('limitItems') == '' ? 5 : Input::get('limitItems');
+            if(Input::get('show') == 1)
+                $categories = Category::paginate($limitItems);
+            else
+                $categories = Category::where('deleted', '=', '0')->paginate($limitItems);
+        }
+        else
+            $categories = Category::find(Input::get('edit'));
+
+        return View::make('create-categories')->with('categories', $categories);//->with('edited', Input::get('edit'));
     }
 
     // Handle the POST requests
-    public function postIndex(){
+    public function postAdmin(){
 
         // Create a category
         $category = array(
@@ -29,11 +47,11 @@ class CategoriesController extends BaseController{
             $category->save();
         }
 
-        // 'Change' the name of the category
-        elseif(Input::get('submit')=="Change"){
+        elseif(Input::get('submit')=="Change Name"){
             $category = Category::find(Input::get('frmID'));
             $category->catName = Input::get('frmCatName');
             $category->save();
+            return Redirect::route('catAdmin')->with('edit', Input::get('edit'))->with('show', Input::get('show'));
         }
 
         // Create a category
@@ -41,11 +59,11 @@ class CategoriesController extends BaseController{
             Category::create($category);
         }
 
-        return Redirect::to('/create-categories');
+        return Redirect::route('catAdmin');
     }
 
     // Show all the categories
-    public function getCategories(){
+    public function gCategories(){
         return View::make('categories')->with('categories', Category::all());
     }
 }
