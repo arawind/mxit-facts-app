@@ -3,13 +3,16 @@
 class FactsController extends BaseController{
 
     public function __construct(){
-        $this->beforeFilter('auth', array('except' => array('gFacts', 'pFacts')));
+        $this->beforeFilter('auth', array('except' => array('gFacts', 'pFacts', 'getShare', 'postShare')));
     }
 
     // private function to create an array to be transferred to the page
-    private function results($id, $numberOfItems = 10){
+    private function results($id, $all, $numberOfItems = 10){
         $category = Category::find($id);
-        $facts = $category->facts()->paginate($numberOfItems);//->get();
+        if(!$all)
+            $facts = $category->facts()->where('approved', '=', true)->paginate($numberOfItems);//->get();
+        else
+            $facts = $category->facts()->paginate($numberOfItems);//->get();
 
         $ratings = array();
         foreach($facts->getItems() as $fact){
@@ -30,14 +33,14 @@ class FactsController extends BaseController{
 
     // Show all facts
     public function gFacts($id){ 
-        return View::make('facts', array('results'=>$this->results($id, 1)));
+        return View::make('facts', array('results'=>$this->results($id, false, 1)));
     }
 
     // Handle the GET requests
     public function getIndex($id){
         if(Input::get('limitItems') != null)
-            return View::make('create-facts', array('results'=>$this->results($id, Input::get('limitItems') )));
-        return View::make('create-facts', array('results'=>$this->results($id)));
+            return View::make('create-facts', array('results'=>$this->results($id,true, Input::get('limitItems'))));
+        return View::make('create-facts', array('results'=>$this->results($id, true)));
     }
 
     // Handle the POST requests
@@ -111,6 +114,21 @@ class FactsController extends BaseController{
         }
 
         return Redirect::to(Request::fullUrl());
+    }
+
+    public function getShare($id){
+        return View::make('facts-share', array('id' => $id));
+    }
+
+    public function postShare($id){
+        $fact = new Fact;
+        $fact->fact = Input::get('frmFact');
+        $fact->userID = Request::server('HTTP_X_MXIT_USERID_R');
+        $fact->catID = Input::get('frmID');
+        $fact->time = date('Y-m-d H:i:s'); 
+        $fact->save();
+
+        return Redirect::to(Input::get('frmBack'));
     }
 }
 

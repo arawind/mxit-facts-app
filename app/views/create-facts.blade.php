@@ -54,7 +54,7 @@ Limit items on page:
             {{$fact->fact}}
         </td>
         <td align="center">
-            @if($fact->approved==false) Show @else Hide @endif
+            @if($fact->approved==false) Hidden @else Shown @endif
         </td>
         <td align="center">
             {{Form::open($formURL)}}

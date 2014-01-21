@@ -21,7 +21,6 @@
     </table>
 
 @foreach($results['facts'] as $fact)
-    @if($fact->approved == true)
     <p>{{$fact->fact}}</p>
     <p>
     {{Form::open(array('url'=> Request::fullUrl()))}} 
@@ -36,11 +35,12 @@
     <input type="submit" name="submit" value="Rate" class="btn btn-default" />
     {{Form::close()}}
     </p>
-    @endif
 @endforeach
 {{$results['facts']->links()}}
 <br>
 {{HTML::link(url('/'), 'Home')}}
+<br>
+<a href="{{Request::url()}}/share">Share a fact</a>
 <br>
 <a href="mxit://[mxit_recommend]/Recommend?service_name=didyouknowfacts" type="mxit/service-navigation">Share With Friends</a>
 </div>

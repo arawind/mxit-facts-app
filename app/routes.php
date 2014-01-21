@@ -29,6 +29,10 @@ Route::controller('{id}/facts/admin', 'FactsController', array('getIndex' => 'fa
 // View Facts: Passed to FactsController's getFacts function
 Route::get('{id}/facts', array('as' => 'facts', 'uses' => 'FactsController@gFacts'));
 
+Route::get('{id}/facts/share', 'FactsController@getShare');
+
+Route::post('{id}/facts/share', 'FactsController@postShare');
+
 Route::post('{id}/facts', 'FactsController@pFacts');
 
 Route::get('login', array('as' => 'login', function(){
