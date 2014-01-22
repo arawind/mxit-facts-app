@@ -1,5 +1,4 @@
 <?php
-
 class FactsController extends BaseController{
 
     public function __construct(){
@@ -10,10 +9,12 @@ class FactsController extends BaseController{
     private function results($id, $all, $numberOfItems = 10){
         $category = Category::find($id);
         if(!$all)
-            $facts = $category->facts()->where('approved', '=', true)->paginate($numberOfItems);//->get();
+            $facts = $category->facts()->where('approved', '=', true);
         else
-            $facts = $category->facts()->paginate($numberOfItems);//->get();
+            $facts = $category->facts();
 
+        $facts = $facts->paginate($numberOfItems);
+        $facts->getEnvironment()->setViewName('pagination-mxit');
         $ratings = array();
         foreach($facts->getItems() as $fact){
             $ratings['factInteresting'.$fact->id] = $fact->ratings()->getQuery()->where('rating','=','1')->count();

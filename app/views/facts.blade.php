@@ -19,7 +19,6 @@
         <td style="text-align:center; width:100%;">{{$results['name']}} Facts</td>
     </tr>
     </table>
-
 @foreach($results['facts'] as $fact)
     <p>{{$fact->fact}}</p>
     <p>
